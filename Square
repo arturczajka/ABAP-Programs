@@ -1,0 +1,75 @@
+REPORT ztest_play8.
+
+PARAMETERS p_size TYPE i.
+
+FORM create_square_side USING iv_size TYPE i
+                              iv_is_middle_side TYPE abap_bool
+                        CHANGING square_side TYPE string.
+
+  DO iv_size TIMES.
+
+    IF ( sy-index BETWEEN 2 AND iv_size - 1 ) AND iv_is_middle_side = abap_true.
+
+      square_side = |{ square_side } |.
+
+    ELSE.
+      square_side = |{ square_side }*|.
+    ENDIF.
+  ENDDO.
+ENDFORM.
+
+START-OF-SELECTION.
+
+  DATA: lv_star  TYPE string,
+        lv_star2 TYPE string.
+
+*  PERFORM create_square_side USING p_size
+*                                   abap_false
+*                             CHANGING lv_star.
+
+*  PERFORM create_square_side USING p_size
+*                                   abap_true
+*                               CHANGING lv_star2.
+
+
+  DO p_size TIMES.
+
+    IF sy-index = 1 OR sy-index = p_size.
+*      WRITE: / lv_star.
+      CLEAR lv_star.
+      DO p_size TIMES.
+
+        lv_star = |{ lv_star }*|.
+
+
+      ENDDO.
+
+      WRITE: / lv_star.
+
+    ELSE.
+      CLEAR lv_star2.
+      DO p_size TIMES.
+
+        IF sy-index BETWEEN 2 AND p_size - 1.
+
+          lv_star2 = |{ lv_star2 } |.
+
+        ELSE.
+          lv_star2 = |{ lv_star2 }*|.
+
+        ENDIF.
+
+
+      ENDDO.
+      WRITE / lv_star2.
+
+    ENDIF.
+
+  ENDDO.
+*
+
+*      write: / lv_star.
+*      do 8 times.
+*      write: / lv_star2.
+*      ENDDO.
+*      write: / lv_star.
