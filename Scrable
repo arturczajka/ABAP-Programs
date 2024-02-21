@@ -1,0 +1,56 @@
+REPORT ztest_play4.
+
+DATA lv_result TYPE i.
+DATA values_of_letters TYPE string.
+TYPES:
+  BEGIN OF letter_value_bank,
+    letter TYPE char01,
+    value  TYPE i,
+  END OF letter_value_bank,
+  tt_letter_value_bank TYPE HASHED TABLE OF letter_value_bank WITH UNIQUE KEY letter.
+
+FINAL(letters_values) = VALUE tt_letter_value_bank( value  = 1 ( letter = 'A' )
+                                                               ( letter = 'E' )
+                                                               ( letter = 'I' )
+                                                               ( letter = 'O' )
+                                                               ( letter = 'U' )
+                                                               ( letter = 'L' )
+                                                               ( letter = 'N' )
+                                                               ( letter = 'R' )
+                                                               ( letter = 'S' )
+                                                               ( letter = 'T' )
+                                                    value = 2 ( letter = 'D' )
+                                                              ( letter = 'G' )
+                                                    value = 3 ( letter = 'B' )
+                                                              ( letter = 'C' )
+                                                              ( letter = 'M' )
+                                                              ( letter = 'P' )
+                                                    value = 4 ( letter = 'F' )
+                                                              ( letter = 'H' )
+                                                              ( letter = 'V' )
+                                                              ( letter = 'W' )
+                                                              ( letter = 'Y' )
+                                                    value = 5 ( letter = 'K' )
+                                                    value = 8 ( letter = 'J' )
+                                                              ( letter = 'X' )
+                                                   value = 10 ( letter = 'Q' )
+                                                              ( letter = 'Z' ) ).
+
+PARAMETERS word TYPE string.
+
+START-OF-SELECTION.
+  "get length of string "word" into variable length
+  FINAL(length) = strlen( word ).
+
+  DO length TIMES.
+    FINAL(new_index) = sy-index - 1.
+    FINAL(read_letter) = word+new_index(1).
+    READ TABLE letters_values  ASSIGNING FIELD-SYMBOL(<letter_value>) WITH KEY primary_key COMPONENTS letter = read_letter.
+    IF sy-subrc = 0.
+      lv_result =  lv_result + <letter_value>-value.
+      values_of_letters = |{ values_of_letters }{ <letter_value>-value }|.
+    ENDIF.
+  ENDDO.
+  WRITE / word.
+  WRITE / values_of_letters.
+  WRITE / lv_result.
