@@ -1,0 +1,81 @@
+*&---------------------------------------------------------------------*
+*& Report zck_test_program
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zck_test_program_2.
+"model -> metoda fetch_data
+"view -> metoda display_data
+
+CLASS lcl_model DEFINITION CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    TYPES: tt_table_type TYPE STANDARD TABLE OF z_cs_sflights_freeseat_,
+           rt_carrid TYPE RANGE OF z_cs_sflights_freeseat_-Carrid,
+           rt_fldate TYPE RANGE OF z_cs_sflights_freeseat_-Fldate.
+    DATA: mt_table TYPE tt_table_type.
+    METHODS: fetch
+
+    IMPORTING
+
+s_carrid type rt_carrid
+s_fldate type rt_fldate.
+
+ENDCLASS.
+
+CLASS lcl_model IMPLEMENTATION.
+
+  METHOD fetch.
+    SELECT * FROM Z_CS_SFLIGHTS_FreeSeat_ INTO TABLE @mt_table
+    where carrid in @s_carrid
+    and fldate in @s_fldate.
+  ENDMETHOD.
+
+ENDCLASS.
+
+
+class lcl_controler definition create public.
+
+  public section.
+    methods: main
+
+       IMPORTING
+
+s_carrid type lcl_model=>rt_carrid
+s_fldate type lcl_model=>rt_fldate.
+
+  protected section.
+  private section.
+
+endclass.
+
+class lcl_controler implementation.
+
+  method main.
+DATA(lo_model) = NEW lcl_model( ).
+  lo_model->fetch( s_carrid = s_carrid
+  s_fldate = s_fldate ).
+
+CL_SALV_TABLE=>factory( IMPORTING r_salv_table   = Data(lo_salvtable)
+                         CHANGING t_table        = lo_model->mt_table ).
+
+lo_salvtable->display( ).
+write  ''.
+*CATCH cx_salv_msg.
+
+*  DATA(lo_view) = NEW lcl_view( ).
+*  lo_view->display( lo_model->mt_table ).
+  endmethod.
+
+endclass.
+
+DATA spfli_wa TYPE z_cs_sflights_freeseat_.
+
+select-OPTIONS:
+s_carrid for spfli_wa-carrid,
+s_fldate for spfli_wa-fldate.
+
+START-OF-SELECTION.
+  DATA(lo_controler) = NEW lcl_controler( ).
+  lo_controler->main( s_carrid = s_carrid[]
+  s_fldate = s_fldate[] ).
